@@ -11,7 +11,11 @@ async function fetchPsalm(psalmNumber) {
   try {
     const response = await fetch('/psalms/psalms.json'); // Corrected path
     const psalms = await response.json();
-    return psalms[psalmNumber]?.text || 'Psalm not found';
+    const chapter = psalms.chapters.find((ch) => ch.chapter === psalmNumber.toString());
+    if (!chapter) {
+      return "Psalm not found";
+    }
+    return chapter.verses.map((verse) => `${verse.verse}. ${verse.text}`).join("\n");
   } catch (error) {
     console.error('Error fetching Psalms:', error);
     return 'Error loading Psalm';
@@ -19,7 +23,7 @@ async function fetchPsalm(psalmNumber) {
 }
 
 const PsalmistApp = () => {
-  const totalPsalms = 10;//150;
+  const totalPsalms = 10; // Adjust this to the actual number of chapters in your JSON
   const dayOfYear = getDayOfYear();
   const psalmNumber = (dayOfYear % totalPsalms) + 1;
   const localStorageKey = `psalm-${psalmNumber}`;
