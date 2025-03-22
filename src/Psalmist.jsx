@@ -25,36 +25,68 @@ async function fetchPsalm(psalmNumber) {
 const PsalmistApp = () => {
   const totalPsalms = 150;
   const dayOfYear = getDayOfYear();
-  const psalmNumber = (dayOfYear % totalPsalms) + 1;
-  const localStorageKey = `psalm-${psalmNumber}`;
-  
+  const [selectedPsalm, setSelectedPsalm] = useState((dayOfYear % totalPsalms) + 1);
   const [psalmText, setPsalmText] = useState("");
-  const [userInput, setUserInput] = useState(localStorage.getItem(localStorageKey) || "");
+  const [userInput, setUserInput] = useState("");
   const [completion, setCompletion] = useState(0);
 
   useEffect(() => {
-    fetchPsalm(psalmNumber).then(setPsalmText);
-  }, [psalmNumber]);
+    const localStorageKey = `psalm-${selectedPsalm}`;
+    const savedInput = localStorage.getItem(localStorageKey) || "";
+    setUserInput(savedInput);
+
+    fetchPsalm(selectedPsalm).then(setPsalmText);
+  }, [selectedPsalm]);
 
   useEffect(() => {
+    const localStorageKey = `psalm-${selectedPsalm}`;
     localStorage.setItem(localStorageKey, userInput);
     setCompletion((userInput.length / psalmText.length) * 100);
-  }, [userInput, psalmText, localStorageKey]);
+  }, [userInput, psalmText, selectedPsalm]);
+
+  const handlePsalmClick = (psalmNumber) => {
+    setSelectedPsalm(psalmNumber);
+  };
 
   const handleChange = (e) => {
     setUserInput(e.target.value);
   };
 
   return (
-    <div className="p-4 max-w mx-auto">
-      <h1 className="text-xl font-bold">Psalm {psalmNumber}</h1>
-      <pre className="border p-2 bg-gray-100 whitespace-pre-wrap">{psalmText}</pre>
-      <textarea
-        className="w-full p-2 border mt-2 h-40"
-        value={userInput}
-        onChange={handleChange}
-      />
-      <p className="mt-2">Completion: {completion.toFixed(2)}%</p>
+    <div className="flex h-screen">
+      {/* Sidebar */}
+      <div className="w-1/4 border-r p-4 overflow-y-auto">
+        <h2 className="text-lg font-bold mb-4">Psalms</h2>
+        <ul>
+          {Array.from({ length: totalPsalms }, (_, i) => i + 1).map((psalmNumber) => {
+            const localStorageKey = `psalm-${psalmNumber}`;
+            const savedInput = localStorage.getItem(localStorageKey);
+            return (
+              <li
+                key={psalmNumber}
+                className={`cursor-pointer p-2 ${
+                  psalmNumber === selectedPsalm ? "bg-gray-200 font-bold" : ""
+                }`}
+                onClick={() => handlePsalmClick(psalmNumber)}
+              >
+                Psalm {psalmNumber} - {savedInput ? "In Progress" : "Not Started"}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+
+      {/* Main Content */}
+      <div className="w-3/4 p-4">
+        <h1 className="text-xl font-bold">Psalm {selectedPsalm}</h1>
+        <pre className="border p-2 bg-gray-100 whitespace-pre-wrap">{psalmText}</pre>
+        <textarea
+          className="w-full p-2 border mt-2 h-40"
+          value={userInput}
+          onChange={handleChange}
+        />
+        <p className="mt-2">Completion: {completion.toFixed(2)}%</p>
+      </div>
     </div>
   );
 };
