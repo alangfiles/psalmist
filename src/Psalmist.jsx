@@ -9,7 +9,7 @@ const getDayOfYear = () => {
 
 async function fetchPsalm(psalmNumber) {
   try {
-    const response = await fetch('/psalms/psalms.json'); // Corrected path
+    const response = await fetch('/psalmist/psalms/psalms.json'); // Corrected path
     const psalms = await response.json();
     const chapter = psalms.chapters.find((ch) => ch.chapter === psalmNumber.toString());
     if (!chapter) {
