@@ -23,7 +23,7 @@ async function fetchPsalm(psalmNumber) {
 }
 
 const PsalmistApp = () => {
-  const totalPsalms = 10; // Adjust this to the actual number of chapters in your JSON
+  const totalPsalms = 150;
   const dayOfYear = getDayOfYear();
   const psalmNumber = (dayOfYear % totalPsalms) + 1;
   const localStorageKey = `psalm-${psalmNumber}`;
@@ -46,11 +46,11 @@ const PsalmistApp = () => {
   };
 
   return (
-    <div className="p-4 max-w-2xl mx-auto">
+    <div className="p-4 max-w mx-auto">
       <h1 className="text-xl font-bold">Psalm {psalmNumber}</h1>
       <pre className="border p-2 bg-gray-100 whitespace-pre-wrap">{psalmText}</pre>
       <textarea
-        className="w-full p-2 border mt-2"
+        className="w-full p-2 border mt-2 h-40"
         value={userInput}
         onChange={handleChange}
       />
