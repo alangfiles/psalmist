@@ -29,6 +29,7 @@ const PsalmistApp = () => {
   const [psalmText, setPsalmText] = useState("");
   const [userInput, setUserInput] = useState("");
   const [completion, setCompletion] = useState(0);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State to toggle sidebar visibility
 
   // Ref to store the element for today's psalm
   const todayPsalmRef = useRef(null);
@@ -61,6 +62,7 @@ const PsalmistApp = () => {
 
   const handlePsalmClick = (psalmNumber) => {
     setSelectedPsalm(psalmNumber);
+    setIsSidebarOpen(false); // Close the sidebar on mobile after selecting a psalm
   };
 
   const handleChange = (e) => {
@@ -72,9 +74,13 @@ const PsalmistApp = () => {
   };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex flex-col md:flex-row h-screen">
       {/* Sidebar */}
-      <div className="w-52 border-r p-4 overflow-y-auto">
+      <div
+        className={`fixed inset-y-0 left-0 z-10 bg-white border-r p-4 overflow-y-auto transform ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } transition-transform duration-300 md:relative md:translate-x-0 md:w-52`}
+      >
         <h2 className="text-lg font-bold mb-4">Psalms</h2>
         <ul>
           {Array.from({ length: totalPsalms }, (_, i) => i + 1).map((psalmNumber) => {
@@ -100,8 +106,17 @@ const PsalmistApp = () => {
         </ul>
       </div>
 
+     
+
       {/* Main Content */}
-      <div className="w-3/4 p-4">
+      <div className="flex-1 p-4">
+         {/* Sidebar Toggle Button (Visible on Mobile) */}
+        <button
+          className="md:hidden z-20 bg-blue-500 text-white px-4 py-2 rounded shadow"
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        >
+          {isSidebarOpen ? "Close" : "Menu"}
+        </button>
         <h1 className="text-xl font-bold">Psalm {selectedPsalm}</h1>
         <pre className="border p-2 bg-gray-100 whitespace-pre-wrap">{psalmText}</pre>
         <textarea
