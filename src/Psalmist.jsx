@@ -73,6 +73,17 @@ const PsalmistApp = () => {
     setSelectedPsalm((prev) => (prev % totalPsalms) + 1);
   };
 
+  const getProgressBarStyle = () => {
+    let progress = Math.min(Math.round(completion), 100); // Cap at 100%
+    if(progress >= 90){
+      progress = 100;
+    }
+    const color = progress > 90 ? "bg-green-500" : "bg-blue-500"; // Green if > 90%
+    return { width: `${progress}%`, colorClass: color };
+  };
+
+  const { width, colorClass } = getProgressBarStyle();
+
   return (
     <div className="flex flex-col md:flex-row h-screen">
       {/* Sidebar */}
@@ -132,8 +143,8 @@ const PsalmistApp = () => {
         {/* Progress Bar */}
         <div className="w-full bg-gray-200 rounded-full h-4 mt-4">
           <div
-            className="bg-blue-500 h-4 rounded-full"
-            style={{ width: `${Math.round(completion / 10) * 10}%` }}
+            className={`${colorClass} h-4 rounded-full transition-all duration-300 ease-in-out`}
+            style={{ width }}
           ></div>
         </div>
         <button
