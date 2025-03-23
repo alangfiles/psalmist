@@ -111,13 +111,18 @@ const PsalmistApp = () => {
       {/* Main Content */}
       <div className="flex-1 p-4">
          {/* Sidebar Toggle Button (Visible on Mobile) */}
-        <button
-          className="md:hidden z-20 bg-blue-500 text-white px-4 py-2 rounded shadow"
+          <div className="flex flex-row justify-between">
+          <h1 className="text-xl font-bold">Psalm {selectedPsalm}</h1>
+          <div>
+          <button
+          className="md:hidden  z-20 bg-blue-500 text-white px-2 py-1 mx-2 my-1 rounded shadow"
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
         >
           {isSidebarOpen ? "Close" : "Menu"}
         </button>
-        <h1 className="text-xl font-bold">Psalm {selectedPsalm}</h1>
+        </div>
+          </div>
+        
         <pre className="border p-2 bg-gray-100 whitespace-pre-wrap">{psalmText}</pre>
         <textarea
           className="w-full p-2 border mt-2 h-60" // Increased height
