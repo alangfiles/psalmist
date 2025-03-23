@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 const getDayOfYear = () => {
   const now = new Date();
@@ -30,6 +30,9 @@ const PsalmistApp = () => {
   const [userInput, setUserInput] = useState("");
   const [completion, setCompletion] = useState(0);
 
+  // Ref to store the element for today's psalm
+  const todayPsalmRef = useRef(null);
+
   useEffect(() => {
     const localStorageKey = `psalm-${selectedPsalm}`;
     const savedInput = localStorage.getItem(localStorageKey) || "";
@@ -41,8 +44,20 @@ const PsalmistApp = () => {
   useEffect(() => {
     const localStorageKey = `psalm-${selectedPsalm}`;
     localStorage.setItem(localStorageKey, userInput);
-    setCompletion((userInput.length / psalmText.length) * 100);
+
+    // Calculate fuzzy completion
+    const psalmLength = psalmText.length;
+    const inputLength = userInput.length;
+    const fuzzyCompletion = (inputLength / psalmLength) * 100;
+    setCompletion(fuzzyCompletion);
   }, [userInput, psalmText, selectedPsalm]);
+
+  // Scroll to today's psalm when the component mounts
+  useEffect(() => {
+    if (todayPsalmRef.current) {
+      todayPsalmRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, []);
 
   const handlePsalmClick = (psalmNumber) => {
     setSelectedPsalm(psalmNumber);
@@ -52,24 +67,33 @@ const PsalmistApp = () => {
     setUserInput(e.target.value);
   };
 
+  const handleNextPsalm = () => {
+    setSelectedPsalm((prev) => (prev % totalPsalms) + 1);
+  };
+
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
-      <div className="w-1/4 border-r p-4 overflow-y-auto">
+      <div className="w-52 border-r p-4 overflow-y-auto">
         <h2 className="text-lg font-bold mb-4">Psalms</h2>
         <ul>
           {Array.from({ length: totalPsalms }, (_, i) => i + 1).map((psalmNumber) => {
             const localStorageKey = `psalm-${psalmNumber}`;
-            const savedInput = localStorage.getItem(localStorageKey);
+            const savedInput = localStorage.getItem(localStorageKey) || "";
+
+            // Attach the ref to today's psalm
+            const isTodayPsalm = psalmNumber === (dayOfYear % totalPsalms) + 1;
+
             return (
               <li
                 key={psalmNumber}
+                ref={isTodayPsalm ? todayPsalmRef : null}
                 className={`cursor-pointer p-2 ${
                   psalmNumber === selectedPsalm ? "bg-gray-200 font-bold" : ""
                 }`}
                 onClick={() => handlePsalmClick(psalmNumber)}
               >
-                Psalm {psalmNumber} - {savedInput ? "In Progress" : "Not Started"}
+                ψ {psalmNumber} - {savedInput ? "In Progress" : "Not Started"}
               </li>
             );
           })}
@@ -81,11 +105,23 @@ const PsalmistApp = () => {
         <h1 className="text-xl font-bold">Psalm {selectedPsalm}</h1>
         <pre className="border p-2 bg-gray-100 whitespace-pre-wrap">{psalmText}</pre>
         <textarea
-          className="w-full p-2 border mt-2 h-40"
+          className="w-full p-2 border mt-2 h-60" // Increased height
           value={userInput}
           onChange={handleChange}
         />
-        <p className="mt-2">Completion: {completion.toFixed(2)}%</p>
+        {/* Progress Bar */}
+        <div className="w-full bg-gray-200 rounded-full h-4 mt-4">
+          <div
+            className="bg-blue-500 h-4 rounded-full"
+            style={{ width: `${Math.round(completion / 10) * 10}%` }}
+          ></div>
+        </div>
+        <button
+          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          onClick={handleNextPsalm}
+        >
+          Next Psalm
+        </button>
       </div>
     </div>
   );
